@@ -2,7 +2,7 @@
     "name": "krn/krn-auth-php",
     "version": "1.0.0",
     "description": "SDK for validating KRN passports",
-    "homepage": "https://github.com/KroneMultimedia/krn-auth-js",
+    "homepage": "https://github.com/KroneMultimedia/krn-auth-php",
     "license": "MIT",
     "type": "library",
     "require": {
