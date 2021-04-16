@@ -89,7 +89,7 @@ class KRNAuth {
     private function aesDecrypt($ciphered, $password) {
         $method = 'aes-256-cbc';
         $ivSize = openssl_cipher_iv_length($method);
-        $data = hex2bin($ciphered);
+        $data = base64_decode($ciphered);
         $ivData = substr($data, 0, $ivSize);
         $encData = substr($data, $ivSize);
         $output = openssl_decrypt(
