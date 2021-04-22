@@ -6,9 +6,9 @@ use \Firebase\JWT\JWT;
 
 // internal vs external use
 define('TRINITY_BASE_URL', getenv('KRN_HOST_PREFIX') ? 'http://' . getenv('KRN_HOST_PREFIX') . 'trinity.krn.krone.at' : 'https://trinity.krone.at');
+define('ERR_INVALID_TOKEN', [ 'error' => 'Invalid Token' ]);
 
 class KRNAuth {
-    static $ERR_INVALID_TOKEN = [ 'error' => 'Invalid Token' ];
     private $partner;
 
     public function __construct($partner) {
@@ -19,7 +19,7 @@ class KRNAuth {
         $self = $this;
 
         if(substr($token, 0, strlen($this->partner->name)) !== $this->partner->name) {
-            return $self::$ERR_INVALID_TOKEN;
+            return (object) ERR_INVALID_TOKEN;
         }
 
         // remove partner prefix
@@ -30,7 +30,7 @@ class KRNAuth {
         try {
             $decoded = JWT::decode($jwt, $this->partner->hmac_secret, array('HS256'));
         } catch(\Exception $ex) {
-            return $self::$ERR_INVALID_TOKEN;
+            return (object) ERR_INVALID_TOKEN;
         }
 
         // decrypt payload
@@ -83,7 +83,7 @@ class KRNAuth {
             return $response->data->renew->DecodedToken;
         }
 
-        return $self::$ERR_INVALID_TOKEN;
+        return (object) ERR_INVALID_TOKEN;
     }
 
     private function aesDecrypt($ciphered, $password) {
