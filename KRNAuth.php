@@ -3,6 +3,10 @@
 namespace KRN;
 
 use \Firebase\JWT\JWT;
+use HttpSignatures\Context;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+
 
 // internal vs external use
 define('TRINITY_BASE_URL', getenv('KRN_HOST_PREFIX') ? 'http://' . getenv('KRN_HOST_PREFIX') . 'trinity.krn.krone.at' : 'https://trinity.krone.at');
@@ -14,6 +18,44 @@ class KRNAuth {
     public function __construct($partner) {
         $this->partner = (object) $partner;
     }
+
+    public function sendRequest(string $method = "GET", string $path = "", array $headers = [], string $body = ""): Response {
+        $headers["user-agent"] = "KRN-API Trinity";
+
+        $url = TRINITY_BASE_URL . $path;
+        $req = new Request($method, $url, $headers, $body);
+
+        // PRESIGN SETUP
+        $req = $req->withHeader("krn-partner-key", $this->partner->rest_key);
+        $req = $req->withHeader("KRN-SIGN-URL", $url);
+
+        // SIGN WITH RSA KEY
+        $req = $this->signRequest($req); // Sign
+
+        // SEND REQ
+        $client = new \GuzzleHttp\Client();
+        $resp = $client->send($req); // SEND
+
+        // RETURN PSR7 Response
+        return $resp;
+    }
+
+    public function signRequest(Request $request): Request
+    {
+        $context = new \HttpSignatures\Context([
+        'keys' => ['mykey' => $this->partner->rsa_key],
+        'algorithm' => 'rsa-sha256',
+        'headers' => ["(request-target)", "krn-partner-key", "KRN-SIGN-URL", "Date"],
+        ]);
+
+        $request = $request->withHeader("krn-partner-key", $this->partner->rest_key);
+        $request = $request->withHeader("Date", time());
+
+        $request =  $context->signer()->sign($request);
+
+        return $request;
+    }
+
 
     public function validate($token) {
         $self = $this;
