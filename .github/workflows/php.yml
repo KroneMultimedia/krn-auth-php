@@ -11,6 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Setup PHP with pre-release PECL extension
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
     - uses: actions/checkout@v2
     - name: Cache Composer packages
       id: composer-cache
