@@ -32,7 +32,6 @@ jobs:
       uses: remorses/bump-version@v8
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        tag_version: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
