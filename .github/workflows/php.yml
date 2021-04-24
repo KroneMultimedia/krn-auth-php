@@ -28,10 +28,10 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
     
-    - name: 'Get Previous tag'
-      id: previoustag
-      uses: "WyriHaximus/github-action-get-previous-tag@v1"
-#       ${{ steps.previoustag.outputs.tag }}
+    - name: Set the value
+      id: step_one
+      run: |
+        echo "action_state=yellow"
     - name: Bump Version
       uses: remorses/bump-version@v8
       with:
