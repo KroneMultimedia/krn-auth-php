@@ -36,6 +36,7 @@ jobs:
       uses: actions-js/push@master
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: "main"
         message: "[ci skip]"
     - name: Bump Version
       uses: remorses/bump-version@v8
