@@ -81,27 +81,9 @@ class KRNAuth {
     }
 
     public function deepValidate($token) {
-        $self = $this;
 
-        $RENEW_QUERY = '
-            mutation doRenew($passport: String!) {
-                renew(passport: $passport) {
-                    Message
-                    Renewed
-                    PassPort
-                    Expires
-                    Error
-                    DecodedToken {
-                        Email,
-                        ID,
-                        IntID,
-                        NickName
-                    }
-                }
-            }
-        ';
 
-        $curl = curl_init(TRINITY_BASE_URL . '/graphql');
+        $curl = curl_init(TRINITY_BASE_URL . '/deep-validate?token='  . $token);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
 
@@ -109,20 +91,14 @@ class KRNAuth {
             'Content-Type: application/json',
         ));
 
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
-            'operationName' => 'doRenew',
-            'query' => $RENEW_QUERY,
-            'variables' => [
-                'passport' => $token
-            ]
-        ]));
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([     ]));
 
         $response = curl_exec($curl);
         $response = json_decode($response);
         curl_close($curl);
 
         if(!is_null($response) && !is_null($response->data) && !isset($response->errors)) {
-            return $response->data->renew->DecodedToken;
+            return $response;
         }
 
         return (object) ERR_INVALID_TOKEN;
