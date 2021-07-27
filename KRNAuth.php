@@ -10,7 +10,7 @@ use GuzzleHttp\Psr7\Response;
 
 // internal vs external use
 define('TRINITY_BASE_URL', getenv('KRN_HOST_PREFIX') ? 'http://' . getenv('KRN_HOST_PREFIX') . 'trinity.krn.krone.at' : 'https://trinity.krone.at');
-define('ERR_INVALID_TOKEN', [ 'error' => 'Invalid Token' ]);
+define('ERR_INVALID_TOKEN', 'Invalid Token');
 
 class KRNAuth {
     private $partner;
@@ -19,7 +19,12 @@ class KRNAuth {
         $this->partner = (object) $partner;
     }
 
-    public function sendRequest(string $method = "GET", string $path = "", array $headers = [], string $body = ""): Response {
+    public function sendRequest(string $method = null, string $path = null, array $headers = [], string $body = null) {
+        $method = ($method == null ? "GET" : $method);
+        $path = ($path == null ? "" : $path);
+        $body = ($body == null ? "" : $body) ;
+
+
         $headers["user-agent"] = "KRN-API Trinity";
 
         $url = TRINITY_BASE_URL . $path;
@@ -40,8 +45,7 @@ class KRNAuth {
         return $resp;
     }
 
-    public function signRequest(Request $request): Request
-    {
+    public function signRequest(Request $request) {
         $context = new \HttpSignatures\Context([
         'keys' => ['mykey' => $this->partner->rsa_key],
         'algorithm' => 'rsa-sha256',
