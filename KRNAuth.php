@@ -8,15 +8,13 @@ use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 
 
-// internal vs external use
-define('TRINITY_BASE_URL', getenv('KRN_HOST_PREFIX') ? 'http://' . getenv('KRN_HOST_PREFIX') . 'trinity.krn.krone.at' : 'https://trinity.krone.at');
-define('ERR_INVALID_TOKEN', 'Invalid Token');
-
 class KRNAuth {
     private $partner;
 
     public function __construct($partner) {
         $this->partner = (object) $partner;
+        $this->trinity_base_url = getenv('KRN_HOST_PREFIX') ? 'http://' . getenv('KRN_HOST_PREFIX') . 'trinity.krn.krone.at' : 'https://trinity.krone.at';
+        $this->err_invalid_token = 'Invalid Token';
     }
 
     public function sendRequest(string $method = null, string $path = null, array $headers = [], string $body = null) {
@@ -27,7 +25,7 @@ class KRNAuth {
 
         $headers["user-agent"] = "KRN-API Trinity";
 
-        $url = TRINITY_BASE_URL . $path;
+        $url = $this->trinity_base_url . $path;
         $req = new Request($method, $url, $headers, $body);
 
         // PRESIGN SETUP
@@ -65,7 +63,7 @@ class KRNAuth {
         $self = $this;
 
         if(substr($token, 0, strlen($this->partner->name)) !== $this->partner->name) {
-            return (object) ERR_INVALID_TOKEN;
+            return (object) $this->err_invalid_token;
         }
 
         // remove partner prefix
@@ -76,7 +74,7 @@ class KRNAuth {
         try {
             $decoded = JWT::decode($jwt, $this->partner->hmac_secret, array('HS256'));
         } catch(\Exception $ex) {
-            return (object) ERR_INVALID_TOKEN;
+            return (object) $this->err_invalid_token;
         }
 
         // decrypt payload
@@ -87,7 +85,7 @@ class KRNAuth {
     public function deepValidate($token) {
 
 
-        $curl = curl_init(TRINITY_BASE_URL . '/deep-validate?token='  . $token);
+        $curl = curl_init($this->trinity_base_url . '/deep-validate?token='  . $token);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($curl, CURLOPT_POST, true);
 
@@ -105,7 +103,7 @@ class KRNAuth {
             return $response;
         }
 
-        return (object) ERR_INVALID_TOKEN;
+        return (object) $this->err_invalid_token;
     }
 
     private function aesDecrypt($ciphered, $password) {
