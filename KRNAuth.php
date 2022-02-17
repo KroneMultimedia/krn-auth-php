@@ -14,7 +14,7 @@ class KRNAuth {
     public function __construct($partner) {
         $this->partner = (object) $partner;
         $this->trinity_base_url = getenv('KRN_HOST_PREFIX') ? 'http://' . getenv('KRN_HOST_PREFIX') . 'trinity.krn.krone.at' : 'https://trinity.krone.at';
-        $this->err_invalid_token = 'Invalid Token';
+        $this->err_invalid_token = (object)["error" => 'Invalid Token'];
     }
 
     public function sendRequest(string $method = null, string $path = null, array $headers = [], string $body = null) {
