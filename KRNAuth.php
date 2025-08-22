@@ -10,6 +10,8 @@ use GuzzleHttp\Psr7\Response;
 
 class KRNAuth {
     private $partner;
+    private $trinity_base_url;
+    private $err_invalid_token;
 
     public function __construct($partner) {
         $this->partner = (object) $partner;
@@ -17,7 +19,7 @@ class KRNAuth {
         $this->err_invalid_token = (object)["error" => 'Invalid Token'];
     }
 
-    public function sendRequest(string $method = null, string $path = null, array $headers = [], string $body = null) {
+    public function sendRequest(?string $method = null, ?string $path = null, array $headers = [], ?string $body = null) {
         $method = ($method == null ? "GET" : $method);
         $path = ($path == null ? "" : $path);
         $body = ($body == null ? "" : $body) ;
