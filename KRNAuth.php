@@ -11,7 +11,7 @@ use GuzzleHttp\Psr7\Response;
 class KRNAuth {
     private $partner;
     private $trinity_base_url;
-    private err_invalid_token;
+    private $err_invalid_token;
 
     public function __construct($partner) {
         $this->partner = (object) $partner;
