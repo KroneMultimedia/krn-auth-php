@@ -3,6 +3,7 @@
 namespace KRN;
 
 use \Firebase\JWT\JWT;
+use \Firebase\JWT\Key;
 use HttpSignatures\Context;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -10,6 +11,8 @@ use GuzzleHttp\Psr7\Response;
 
 class KRNAuth {
     private $partner;
+    private $trinity_base_url;
+    private $err_invalid_token;
 
     public function __construct($partner) {
         $this->partner = (object) $partner;
@@ -17,7 +20,7 @@ class KRNAuth {
         $this->err_invalid_token = (object)["error" => 'Invalid Token'];
     }
 
-    public function sendRequest(string $method = null, string $path = null, array $headers = [], string $body = null) {
+    public function sendRequest(?string $method = null, ?string $path = null, array $headers = [], ?string $body = null) {
         $method = ($method == null ? "GET" : $method);
         $path = ($path == null ? "" : $path);
         $body = ($body == null ? "" : $body) ;
@@ -72,7 +75,7 @@ class KRNAuth {
         // decode and validate token
         // https://github.com/firebase/php-jwt#example
         try {
-            $decoded = JWT::decode($jwt, $this->partner->hmac_secret, array('HS256'));
+            $decoded = JWT::decode($jwt, new Key($this->partner->hmac_secret, 'HS256'));
         } catch(\Exception $ex) {
             return (object) $this->err_invalid_token;
         }
